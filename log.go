@@ -14,20 +14,34 @@ const (
 	WARNING = 16
 	WTF     = 32
 	ALL     = DEBUG ^ ERROR ^ INFO ^ VERBOSE ^ WARNING ^ WTF
+
+	LOG_LEVEL_DEFAULT = WARNING ^ ERROR ^ INFO
 )
 
 var (
-	log_level     = WARNING ^ ERROR ^ INFO
+	log_level     = LOG_LEVEL_DEFAULT
 	log_level_tag = map[string]int{}
 	//logger    = log.New()
 )
 
-func SetLogLevel(level int) {
-	log_level = level
+func SetLogLevel(level int, tags ...string) {
+	if len(tags) < 1 {
+		log_level = level
+	} else {
+		for _, tag := range tags {
+			log_level_tag[tag] = level
+		}
+	}
 }
 
-func SetTagLogLevel(tag string, level int) {
-	log_level_tag[tag] = level
+func ResetLogLevel(tags ...string) {
+	if len(tags) < 1 {
+		log_level = LOG_LEVEL_DEFAULT
+	} else {
+		for _, tag := range tags {
+			delete(log_level_tag, tag)
+		}
+	}
 }
 
 func _print_error(tag string, level string, msg ...interface{}) {
