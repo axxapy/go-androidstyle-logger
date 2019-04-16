@@ -73,6 +73,13 @@ func _format(msg string, args ...interface{}) string {
 	return fmt.Sprintf(msg, args...)
 }
 
+func Check(level LogLevel, tags ...string) Logger {
+	if logger.IsLoggable(level, tags...) {
+		return logger
+	}
+	return nil
+}
+
 func CheckLevel(level LogLevel) Logger {
 	if logger.IsLoggable(level) {
 		return logger
