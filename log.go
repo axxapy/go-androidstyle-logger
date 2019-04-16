@@ -62,15 +62,15 @@ type SimpleLogger interface {
 }
 
 func _print_error(tag string, level string, msg ...interface{}) {
-	log.Print("["+level+"] ["+tag+"] " + fmt.Sprintln(msg...))
+	log.Print("[" + level + "] [" + tag + "] " + fmt.Sprintln(msg...))
 }
 
 func _print_info(tag string, level string, msg ...interface{}) {
-	log.Output(2, "["+level+"] ["+tag+"] " + fmt.Sprintln(msg...))
+	log.Output(2, "["+level+"] ["+tag+"] "+fmt.Sprintln(msg...))
 }
 
 func _format(msg string, args ...interface{}) string {
-	return fmt.Sprintf(msg, args...);
+	return fmt.Sprintf(msg, args...)
 }
 
 func is_printable(tag string, level LogLevel) bool {

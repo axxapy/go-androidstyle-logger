@@ -110,9 +110,9 @@ func (l *defaultLogger) ResetLogLevel(tags ...string) {
 
 func (l *defaultLogger) IsLoggable(level LogLevel, tags ...string) bool {
 	for _, tag := range tags {
-		if tag_level, exists := l.log_level_tag[tag]; exists && tag_level & level != 0 {
+		if tag_level, exists := l.log_level_tag[tag]; exists && tag_level&level != 0 {
 			return true
 		}
 	}
-	return l.log_level & level != 0
+	return l.log_level&level != 0
 }
