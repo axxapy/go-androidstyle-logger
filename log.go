@@ -1,7 +1,6 @@
 package l
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -74,12 +73,6 @@ func GetLevelName(level LogLevel) string {
 		return name
 	}
 	return strconv.Itoa(int(level))
-}
-
-type Formatter func(tag string, level LogLevel, msg ...interface{}) string
-
-func defaultFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) string {
-	return "[" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...)
 }
 
 func Check(level LogLevel, tags ...string) Logger {

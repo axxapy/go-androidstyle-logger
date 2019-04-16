@@ -16,16 +16,20 @@ func New() Logger {
 	return &defaultLogger{
 		log_level:     LOG_LEVEL_DEFAULT,
 		log_level_tag: make(map[string]LogLevel),
-		formatter:     defaultFormatter,
+		formatter:     DefaultFormatter,
 	}
 }
 
+func (l *defaultLogger) format(tag string, level LogLevel, msg ...interface{}) []byte {
+	return l.formatter(l, tag, level, msg...)
+}
+
 func (l *defaultLogger) _print_error(tag string, level LogLevel, msg ...interface{}) {
-	log.Print(l.formatter(tag, level, msg...))
+	log.Print(string(l.format(tag, level, msg...)))
 }
 
 func (l *defaultLogger) _print_info(tag string, level LogLevel, msg ...interface{}) {
-	log.Output(2, l.formatter(tag, level, msg...))
+	log.Output(2, string(l.format(tag, level, msg...)))
 }
 
 func (l *defaultLogger) D(tag string, msg ...interface{}) {
