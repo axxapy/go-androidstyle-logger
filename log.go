@@ -1,9 +1,8 @@
 package l
 
 import (
-	"log"
 	"fmt"
-	"os"
+	"log"
 )
 
 const (
@@ -22,6 +21,7 @@ var (
 	log_level     = LOG_LEVEL_DEFAULT
 	log_level_tag = map[string]int{}
 	//logger    = log.New()
+	logger = &defaultLogger{}
 )
 
 func SetLogLevel(level int, tags ...string) {
@@ -44,6 +44,38 @@ func ResetLogLevel(tags ...string) {
 	}
 }
 
+type Logger interface {
+	D(tag string, msg ...interface{})
+	Df(tag string, msg string, args ...interface{})
+	V(tag string, msg ...interface{})
+	Vf(tag string, msg string, args ...interface{})
+	E(tag string, msg ...interface{})
+	Ef(tag string, msg string, args ...interface{})
+	W(tag string, msg ...interface{})
+	Wf(tag string, msg string, args ...interface{})
+	I(tag string, msg ...interface{})
+	If(tag string, msg string, args ...interface{})
+
+	Fatal(tag string, err error)
+
+	WithTag(tag string) SimpleLogger
+}
+
+type SimpleLogger interface {
+	D(msg ...interface{})
+	Df(msg string, args ...interface{})
+	V(msg ...interface{})
+	Vf(msg string, args ...interface{})
+	E(msg ...interface{})
+	Ef(msg string, args ...interface{})
+	W(msg ...interface{})
+	Wf(msg string, args ...interface{})
+	I(msg ...interface{})
+	If(msg string, args ...interface{})
+
+	Fatal(err error)
+}
+
 func _print_error(tag string, level string, msg ...interface{}) {
 	log.Print("["+level+"] ["+tag+"] " + fmt.Sprintln(msg...))
 }
@@ -56,77 +88,24 @@ func _format(msg string, args ...interface{}) string {
 	return fmt.Sprintf(msg, args...);
 }
 
-func D(tag string, msg ...interface{}) {
-	if is_printable(tag, DEBUG) {
-		_print_info(tag, "D", msg)
-	}
-}
-
-func Df(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, DEBUG) {
-		_print_info(tag, "D", _format(msg, args...))
-	}
-}
-
-func V(tag string, msg ...interface{}) {
-	if is_printable(tag, VERBOSE) {
-		_print_info(tag, "V", msg)
-	}
-}
-
-func Vf(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, VERBOSE) {
-		_print_info(tag, "V", _format(msg, args...))
-	}
-}
-
-func E(tag string, msg ...interface{}) {
-	if is_printable(tag, ERROR) {
-		_print_error(tag, "E", msg)
-	}
-}
-
-func Ef(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, ERROR) {
-		_print_error(tag, "E", _format(msg, args...))
-	}
-}
-
-func W(tag string, msg ...interface{}) {
-	if is_printable(tag, WARNING) {
-		_print_info(tag, "W", msg)
-	}
-}
-
-func Wf(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, WARNING) {
-		_print_info(tag, "W", _format(msg, args...))
-	}
-}
-
-func I(tag string, msg ...interface{}) {
-	if is_printable(tag, INFO) {
-		_print_info(tag, "I", msg)
-	}
-}
-
-func If(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, INFO) {
-		_print_info(tag, "I", _format(msg, args...))
-	}
-}
-
-func Fatal(tag string, err error) {
-	if err != nil {
-		E(tag, err)
-		os.Exit(1)
-	}
-}
-
 func is_printable(tag string, level int) bool {
 	print_level := log_level
 	if tag_level, exists := log_level_tag[tag]; exists {
 		print_level = tag_level
 	}
 	return print_level & level != 0
+}
+
+func Check(level int) Logger {
+	if is_printable("", level) {
+		return logger
+	}
+	return nil
+}
+
+func CheckTag(tag string, level int) SimpleLogger {
+	if is_printable(tag, level) {
+		return logger.WithTag(tag)
+	}
+	return nil
 }
