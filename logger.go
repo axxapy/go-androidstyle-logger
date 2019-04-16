@@ -2,64 +2,74 @@ package l
 
 import "os"
 
-type defaultLogger struct{}
+type defaultLogger struct {
+	log_level     LogLevel
+	log_level_tag map[string]LogLevel
+}
+
+func New() Logger {
+	return &defaultLogger{
+		log_level:     LOG_LEVEL_DEFAULT,
+		log_level_tag: make(map[string]LogLevel),
+	}
+}
 
 func (l *defaultLogger) D(tag string, msg ...interface{}) {
-	if is_printable(tag, DEBUG) {
+	if l.IsLoggable(DEBUG, tag) {
 		_print_info(tag, "D", msg)
 	}
 }
 
 func (l *defaultLogger) Df(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, DEBUG) {
+	if l.IsLoggable(DEBUG, tag) {
 		_print_info(tag, "D", _format(msg, args...))
 	}
 }
 
 func (l *defaultLogger) V(tag string, msg ...interface{}) {
-	if is_printable(tag, VERBOSE) {
+	if l.IsLoggable(VERBOSE, tag) {
 		_print_info(tag, "V", msg)
 	}
 }
 
 func (l *defaultLogger) Vf(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, VERBOSE) {
+	if l.IsLoggable(VERBOSE, tag) {
 		_print_info(tag, "V", _format(msg, args...))
 	}
 }
 
 func (l *defaultLogger) E(tag string, msg ...interface{}) {
-	if is_printable(tag, ERROR) {
+	if l.IsLoggable(ERROR, tag) {
 		_print_error(tag, "E", msg)
 	}
 }
 
 func (l *defaultLogger) Ef(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, ERROR) {
+	if l.IsLoggable(ERROR, tag) {
 		_print_error(tag, "E", _format(msg, args...))
 	}
 }
 
 func (l *defaultLogger) W(tag string, msg ...interface{}) {
-	if is_printable(tag, WARNING) {
+	if l.IsLoggable(WARNING, tag) {
 		_print_info(tag, "W", msg)
 	}
 }
 
 func (l *defaultLogger) Wf(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, WARNING) {
+	if l.IsLoggable(WARNING, tag) {
 		_print_info(tag, "W", _format(msg, args...))
 	}
 }
 
 func (l *defaultLogger) I(tag string, msg ...interface{}) {
-	if is_printable(tag, INFO) {
+	if l.IsLoggable(INFO, tag) {
 		_print_info(tag, "I", msg)
 	}
 }
 
 func (l *defaultLogger) If(tag string, msg string, args ...interface{}) {
-	if is_printable(tag, INFO) {
+	if l.IsLoggable(INFO, tag) {
 		_print_info(tag, "I", _format(msg, args...))
 	}
 }
@@ -74,55 +84,35 @@ func (l *defaultLogger) Fatal(tag string, err error) {
 func (l *defaultLogger) WithTag(tag string) SimpleLogger {
 	return &simpleLogger{
 		logger: l,
-		tag: tag,
+		tag:    tag,
 	}
 }
 
-type simpleLogger struct {
-	logger Logger
-	tag    string
+func (l *defaultLogger) SetLogLevel(level LogLevel, tags ...string) {
+	if len(tags) < 1 {
+		l.log_level = level
+	} else {
+		for _, tag := range tags {
+			l.log_level_tag[tag] = level
+		}
+	}
 }
 
-func (l *simpleLogger) D(msg ...interface{}) {
-	l.logger.D(l.tag, msg)
+func (l *defaultLogger) ResetLogLevel(tags ...string) {
+	if len(tags) < 1 {
+		l.log_level = LOG_LEVEL_DEFAULT
+	} else {
+		for _, tag := range tags {
+			delete(l.log_level_tag, tag)
+		}
+	}
 }
 
-func (l *simpleLogger) Df(msg string, args ...interface{}) {
-	l.logger.Df(l.tag, msg, args...)
-}
-
-func (l *simpleLogger) V(msg ...interface{}) {
-	l.logger.V(l.tag, msg...)
-}
-
-func (l *simpleLogger) Vf(msg string, args ...interface{}) {
-	l.logger.Vf(l.tag, msg, args...)
-}
-
-func (l *simpleLogger) E(msg ...interface{}) {
-	l.logger.E(l.tag, msg...)
-}
-
-func (l *simpleLogger) Ef(msg string, args ...interface{}) {
-	l.logger.Ef(l.tag, msg, args...)
-}
-
-func (l *simpleLogger) W(msg ...interface{}) {
-	l.logger.W(l.tag, msg...)
-}
-
-func (l *simpleLogger) Wf(msg string, args ...interface{}) {
-	l.logger.Wf(l.tag, msg, args...)
-}
-
-func (l *simpleLogger) I(msg ...interface{}) {
-	l.logger.I(l.tag, msg...)
-}
-
-func (l *simpleLogger) If(msg string, args ...interface{}) {
-	l.logger.If(l.tag, msg, args...)
-}
-
-func (l *simpleLogger) Fatal(err error) {
-	l.logger.Fatal(l.tag, err)
+func (l *defaultLogger) IsLoggable(level LogLevel, tags ...string) bool {
+	for _, tag := range tags {
+		if tag_level, exists := l.log_level_tag[tag]; exists && tag_level & level != 0 {
+			return true
+		}
+	}
+	return l.log_level & level != 0
 }

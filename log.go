@@ -5,44 +5,24 @@ import (
 	"log"
 )
 
+type LogLevel uint
+
 const (
-	DEBUG   = 1
-	ERROR   = 2
-	INFO    = 4
-	VERBOSE = 8
-	WARNING = 16
-	WTF     = 32
+	DEBUG   = LogLevel(1)
+	ERROR   = LogLevel(2)
+	INFO    = LogLevel(4)
+	VERBOSE = LogLevel(8)
+	WARNING = LogLevel(16)
+	WTF     = LogLevel(32)
 	ALL     = DEBUG ^ ERROR ^ INFO ^ VERBOSE ^ WARNING ^ WTF
 
 	LOG_LEVEL_DEFAULT = WARNING ^ ERROR ^ INFO
 )
 
 var (
-	log_level     = LOG_LEVEL_DEFAULT
-	log_level_tag = map[string]int{}
 	//logger    = log.New()
-	logger = &defaultLogger{}
+	logger = New()
 )
-
-func SetLogLevel(level int, tags ...string) {
-	if len(tags) < 1 {
-		log_level = level
-	} else {
-		for _, tag := range tags {
-			log_level_tag[tag] = level
-		}
-	}
-}
-
-func ResetLogLevel(tags ...string) {
-	if len(tags) < 1 {
-		log_level = LOG_LEVEL_DEFAULT
-	} else {
-		for _, tag := range tags {
-			delete(log_level_tag, tag)
-		}
-	}
-}
 
 type Logger interface {
 	D(tag string, msg ...interface{})
@@ -57,6 +37,11 @@ type Logger interface {
 	If(tag string, msg string, args ...interface{})
 
 	Fatal(tag string, err error)
+
+	SetLogLevel(level LogLevel, tags ...string)
+	ResetLogLevel(tags ...string)
+
+	IsLoggable(level LogLevel, tags ...string) bool
 
 	WithTag(tag string) SimpleLogger
 }
@@ -88,22 +73,18 @@ func _format(msg string, args ...interface{}) string {
 	return fmt.Sprintf(msg, args...);
 }
 
-func is_printable(tag string, level int) bool {
-	print_level := log_level
-	if tag_level, exists := log_level_tag[tag]; exists {
-		print_level = tag_level
-	}
-	return print_level & level != 0
+func is_printable(tag string, level LogLevel) bool {
+	return logger.IsLoggable(level, tag)
 }
 
-func Check(level int) Logger {
+func CheckLevel(level LogLevel) Logger {
 	if is_printable("", level) {
 		return logger
 	}
 	return nil
 }
 
-func CheckTag(tag string, level int) SimpleLogger {
+func CheckTagLevel(tag string, level LogLevel) SimpleLogger {
 	if is_printable(tag, level) {
 		return logger.WithTag(tag)
 	}

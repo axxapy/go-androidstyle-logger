@@ -1,5 +1,17 @@
 package l
 
+func SetLogLevel(level LogLevel, tags ...string) {
+	logger.SetLogLevel(level, tags...)
+}
+
+func ResetLogLevel(tags ...string) {
+	logger.ResetLogLevel(tags...)
+}
+
+func WithTag(tag string) SimpleLogger {
+	return logger.WithTag(tag)
+}
+
 func D(tag string, msg ...interface{}) {
 	logger.D(tag, msg...)
 }
