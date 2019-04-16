@@ -2,7 +2,7 @@ package l
 
 import (
 	"fmt"
-	"log"
+	"strconv"
 )
 
 type LogLevel uint
@@ -21,7 +21,14 @@ const (
 
 var (
 	//logger    = log.New()
-	logger = New()
+	logger     = New()
+	levelNames = map[LogLevel]string{
+		DEBUG:   "D",
+		ERROR:   "E",
+		INFO:    "I",
+		VERBOSE: "V",
+		WTF:     "WTF",
+	}
 )
 
 type Logger interface {
@@ -40,6 +47,7 @@ type Logger interface {
 
 	SetLogLevel(level LogLevel, tags ...string)
 	ResetLogLevel(tags ...string)
+	SetFormatter(f Formatter)
 
 	IsLoggable(level LogLevel, tags ...string) bool
 
@@ -61,16 +69,17 @@ type SimpleLogger interface {
 	Fatal(err error)
 }
 
-func _print_error(tag string, level string, msg ...interface{}) {
-	log.Print("[" + level + "] [" + tag + "] " + fmt.Sprintln(msg...))
+func GetLevelName(level LogLevel) string {
+	if name, exists := levelNames[level]; exists {
+		return name
+	}
+	return strconv.Itoa(int(level))
 }
 
-func _print_info(tag string, level string, msg ...interface{}) {
-	log.Output(2, "["+level+"] ["+tag+"] "+fmt.Sprintln(msg...))
-}
+type Formatter func(tag string, level LogLevel, msg ...interface{}) string
 
-func _format(msg string, args ...interface{}) string {
-	return fmt.Sprintf(msg, args...)
+func defaultFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) string {
+	return "[" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...)
 }
 
 func Check(level LogLevel, tags ...string) Logger {

@@ -1,76 +1,90 @@
 package l
 
-import "os"
+import (
+	"fmt"
+	"log"
+	"os"
+)
 
 type defaultLogger struct {
 	log_level     LogLevel
 	log_level_tag map[string]LogLevel
+	formatter     Formatter
 }
 
 func New() Logger {
 	return &defaultLogger{
 		log_level:     LOG_LEVEL_DEFAULT,
 		log_level_tag: make(map[string]LogLevel),
+		formatter:     defaultFormatter,
 	}
+}
+
+func (l *defaultLogger) _print_error(tag string, level LogLevel, msg ...interface{}) {
+	log.Print(l.formatter(tag, level, msg...))
+}
+
+func (l *defaultLogger) _print_info(tag string, level LogLevel, msg ...interface{}) {
+	log.Output(2, l.formatter(tag, level, msg...))
 }
 
 func (l *defaultLogger) D(tag string, msg ...interface{}) {
 	if l.IsLoggable(DEBUG, tag) {
-		_print_info(tag, "D", msg)
+		l._print_info(tag, DEBUG, msg)
 	}
 }
 
 func (l *defaultLogger) Df(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(DEBUG, tag) {
-		_print_info(tag, "D", _format(msg, args...))
+		l._print_info(tag, DEBUG, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) V(tag string, msg ...interface{}) {
 	if l.IsLoggable(VERBOSE, tag) {
-		_print_info(tag, "V", msg)
+		l._print_info(tag, VERBOSE, msg)
 	}
 }
 
 func (l *defaultLogger) Vf(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(VERBOSE, tag) {
-		_print_info(tag, "V", _format(msg, args...))
+		l._print_info(tag, VERBOSE, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) E(tag string, msg ...interface{}) {
 	if l.IsLoggable(ERROR, tag) {
-		_print_error(tag, "E", msg)
+		l._print_error(tag, ERROR, msg)
 	}
 }
 
 func (l *defaultLogger) Ef(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(ERROR, tag) {
-		_print_error(tag, "E", _format(msg, args...))
+		l._print_error(tag, ERROR, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) W(tag string, msg ...interface{}) {
 	if l.IsLoggable(WARNING, tag) {
-		_print_info(tag, "W", msg)
+		l._print_info(tag, WARNING, msg)
 	}
 }
 
 func (l *defaultLogger) Wf(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(WARNING, tag) {
-		_print_info(tag, "W", _format(msg, args...))
+		l._print_info(tag, WARNING, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) I(tag string, msg ...interface{}) {
 	if l.IsLoggable(INFO, tag) {
-		_print_info(tag, "I", msg)
+		l._print_info(tag, INFO, msg)
 	}
 }
 
 func (l *defaultLogger) If(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(INFO, tag) {
-		_print_info(tag, "I", _format(msg, args...))
+		l._print_info(tag, INFO, fmt.Sprintf(msg, args...))
 	}
 }
 
@@ -106,6 +120,10 @@ func (l *defaultLogger) ResetLogLevel(tags ...string) {
 			delete(l.log_level_tag, tag)
 		}
 	}
+}
+
+func (l *defaultLogger) SetFormatter(f Formatter) {
+	l.formatter = f
 }
 
 func (l *defaultLogger) IsLoggable(level LogLevel, tags ...string) bool {

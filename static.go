@@ -8,6 +8,10 @@ func ResetLogLevel(tags ...string) {
 	logger.ResetLogLevel(tags...)
 }
 
+func SetFormatter(f Formatter) {
+	logger.SetFormatter(f)
+}
+
 func WithTag(tag string) SimpleLogger {
 	return logger.WithTag(tag)
 }
