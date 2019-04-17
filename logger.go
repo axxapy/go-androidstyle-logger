@@ -20,12 +20,12 @@ type Logger interface {
 
 	Fatal(tag string, err error)
 
-	SetLogLevel(level LogLevel, tags ...string)
-	ResetLogLevel(tags ...string)
-	SetFormatter(f Formatter)
-	SetWriter(w io.Writer)
+	SetLogLevel(level LogLevel, tags ...string) Logger
+	ResetLogLevel(tags ...string) Logger
+	SetFormatter(f Formatter) Logger
+	SetWriter(w io.Writer) Logger
 
-	IsLoggable(level LogLevel, tags ...string) bool
+	IsLoggable(level LogLevel, tag string) bool
 
 	WithTag(tag string) SimpleLogger
 }
@@ -42,6 +42,7 @@ func New() Logger {
 		log_level:     LOG_LEVEL_DEFAULT,
 		log_level_tag: make(map[string]LogLevel),
 		formatter:     DefaultFormatter,
+		writer:        os.Stderr,
 	}
 }
 
@@ -49,71 +50,67 @@ func (l *defaultLogger) format(tag string, level LogLevel, msg ...interface{}) [
 	return l.formatter(l, tag, level, msg...)
 }
 
-func (l *defaultLogger) _print_error(tag string, level LogLevel, msg ...interface{}) {
-	l.writer.Write(l.format(tag, level, msg...))
-}
-
-func (l *defaultLogger) _print_info(tag string, level LogLevel, msg ...interface{}) {
+func (l *defaultLogger) print(tag string, level LogLevel, msg ...interface{}) {
 	l.writer.Write(l.format(tag, level, msg...))
 }
 
 func (l *defaultLogger) D(tag string, msg ...interface{}) {
 	if l.IsLoggable(DEBUG, tag) {
-		l._print_info(tag, DEBUG, msg)
+		l.print(tag, DEBUG, msg...)
 	}
 }
 
 func (l *defaultLogger) Df(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(DEBUG, tag) {
-		l._print_info(tag, DEBUG, fmt.Sprintf(msg, args...))
+		l.print(tag, DEBUG, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) V(tag string, msg ...interface{}) {
 	if l.IsLoggable(VERBOSE, tag) {
-		l._print_info(tag, VERBOSE, msg)
+		l.print(tag, VERBOSE, msg...)
 	}
 }
 
 func (l *defaultLogger) Vf(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(VERBOSE, tag) {
-		l._print_info(tag, VERBOSE, fmt.Sprintf(msg, args...))
+		l.print(tag, VERBOSE, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) E(tag string, msg ...interface{}) {
 	if l.IsLoggable(ERROR, tag) {
-		l._print_error(tag, ERROR, msg)
+		l.print(tag, ERROR, msg...)
 	}
 }
 
 func (l *defaultLogger) Ef(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(ERROR, tag) {
-		l._print_error(tag, ERROR, fmt.Sprintf(msg, args...))
+		l.print(tag, ERROR, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) W(tag string, msg ...interface{}) {
 	if l.IsLoggable(WARNING, tag) {
-		l._print_info(tag, WARNING, msg)
+		l.print(tag, WARNING, msg...)
 	}
 }
 
 func (l *defaultLogger) Wf(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(WARNING, tag) {
-		l._print_info(tag, WARNING, fmt.Sprintf(msg, args...))
+		l.print(tag, WARNING, fmt.Sprintf(msg, args...))
 	}
 }
 
 func (l *defaultLogger) I(tag string, msg ...interface{}) {
 	if l.IsLoggable(INFO, tag) {
-		l._print_info(tag, INFO, msg)
+		l.print(tag, INFO, msg...)
 	}
 }
 
 func (l *defaultLogger) If(tag string, msg string, args ...interface{}) {
 	if l.IsLoggable(INFO, tag) {
-		l._print_info(tag, INFO, fmt.Sprintf(msg, args...))
+		l.print(tag, INFO, fmt.Sprintf(msg, args...))
 	}
 }
 
@@ -131,7 +128,7 @@ func (l *defaultLogger) WithTag(tag string) SimpleLogger {
 	}
 }
 
-func (l *defaultLogger) SetLogLevel(level LogLevel, tags ...string) {
+func (l *defaultLogger) SetLogLevel(level LogLevel, tags ...string) Logger {
 	if len(tags) < 1 {
 		l.log_level = level
 	} else {
@@ -139,9 +136,10 @@ func (l *defaultLogger) SetLogLevel(level LogLevel, tags ...string) {
 			l.log_level_tag[tag] = level
 		}
 	}
+	return l
 }
 
-func (l *defaultLogger) ResetLogLevel(tags ...string) {
+func (l *defaultLogger) ResetLogLevel(tags ...string) Logger {
 	if len(tags) < 1 {
 		l.log_level = LOG_LEVEL_DEFAULT
 	} else {
@@ -149,25 +147,25 @@ func (l *defaultLogger) ResetLogLevel(tags ...string) {
 			delete(l.log_level_tag, tag)
 		}
 	}
+	return l
 }
 
-func (l *defaultLogger) SetFormatter(f Formatter) {
+func (l *defaultLogger) SetFormatter(f Formatter) Logger {
 	l.formatter = f
+	return l
 }
 
-func (l *defaultLogger) SetWriter(w io.Writer) {
+func (l *defaultLogger) SetWriter(w io.Writer) Logger {
 	l.writer = w
+	return l
 }
 
-func (l *defaultLogger) IsLoggable(level LogLevel, tags ...string) bool {
-	if len(tags) < 1 {
-		return l.log_level&level != 0
-	}
-
-	for _, tag := range tags {
-		if tag_level, exists := l.log_level_tag[tag]; exists && tag_level&level != 0 {
-			return true
+func (l *defaultLogger) IsLoggable(level LogLevel, tag string) bool {
+	if tag != "" {
+		if tagLevel, exists := l.log_level_tag[tag]; exists {
+			return tagLevel&level != 0
 		}
 	}
-	return false
+
+	return l.log_level&level != 0
 }

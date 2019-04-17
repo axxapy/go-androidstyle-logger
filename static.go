@@ -59,15 +59,15 @@ func WithTag(tag string) SimpleLogger {
 	return logger.WithTag(tag)
 }
 
-func Check(level LogLevel, tags ...string) Logger {
-	if logger.IsLoggable(level, tags...) {
+func Check(level LogLevel, tag string) Logger {
+	if logger.IsLoggable(level, tag) {
 		return logger
 	}
 	return nil
 }
 
 func CheckLevel(level LogLevel) Logger {
-	if logger.IsLoggable(level) {
+	if logger.IsLoggable(level, "") {
 		return logger
 	}
 	return nil

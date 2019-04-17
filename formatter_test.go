@@ -12,9 +12,9 @@ func TestDefaultFormatter(t *testing.T) {
 	tag := "TAG"
 
 	for level, levelName := range levelNames {
-		line := DefaultFormatter(l, tag, level, "some", "message", 123)
-		expect := fmt.Sprintf("[%s] [%s] some message 123\n", levelName, tag)
-		assert.Equal(t, expect, string(line))
+		result := DefaultFormatter(l, tag, level, "some", "message", 123)
+		expected := fmt.Sprintf("[%s] [%s] some message 123\n", levelName, tag)
+		assert.Equal(t, expected, string(result))
 	}
 }
 
