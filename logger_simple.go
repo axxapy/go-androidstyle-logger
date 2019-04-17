@@ -21,7 +21,7 @@ type simpleLogger struct {
 }
 
 func (l *simpleLogger) D(msg ...interface{}) {
-	l.logger.D(l.tag, msg)
+	l.logger.D(l.tag, msg...)
 }
 
 func (l *simpleLogger) Df(msg string, args ...interface{}) {
