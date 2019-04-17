@@ -9,7 +9,7 @@ import (
 type Formatter func(l Logger, tag string, level LogLevel, msg ...interface{}) []byte
 
 func DefaultFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {
-	return []byte("[" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...))
+	return []byte("[" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...) + "\n")
 }
 
 func JsonFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {
@@ -22,5 +22,5 @@ func JsonFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []b
 	if err != nil {
 		panic(err)
 	}
-	return b
+	return append(b, '\n')
 }

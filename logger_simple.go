@@ -1,5 +1,20 @@
 package l
 
+type SimpleLogger interface {
+	D(msg ...interface{})
+	Df(msg string, args ...interface{})
+	V(msg ...interface{})
+	Vf(msg string, args ...interface{})
+	E(msg ...interface{})
+	Ef(msg string, args ...interface{})
+	W(msg ...interface{})
+	Wf(msg string, args ...interface{})
+	I(msg ...interface{})
+	If(msg string, args ...interface{})
+
+	Fatal(err error)
+}
+
 type simpleLogger struct {
 	logger Logger
 	tag    string

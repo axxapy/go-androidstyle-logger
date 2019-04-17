@@ -2,14 +2,39 @@ package l
 
 import (
 	"fmt"
-	"log"
+	"io"
 	"os"
 )
+
+type Logger interface {
+	D(tag string, msg ...interface{})
+	Df(tag string, msg string, args ...interface{})
+	V(tag string, msg ...interface{})
+	Vf(tag string, msg string, args ...interface{})
+	E(tag string, msg ...interface{})
+	Ef(tag string, msg string, args ...interface{})
+	W(tag string, msg ...interface{})
+	Wf(tag string, msg string, args ...interface{})
+	I(tag string, msg ...interface{})
+	If(tag string, msg string, args ...interface{})
+
+	Fatal(tag string, err error)
+
+	SetLogLevel(level LogLevel, tags ...string)
+	ResetLogLevel(tags ...string)
+	SetFormatter(f Formatter)
+	SetWriter(w io.Writer)
+
+	IsLoggable(level LogLevel, tags ...string) bool
+
+	WithTag(tag string) SimpleLogger
+}
 
 type defaultLogger struct {
 	log_level     LogLevel
 	log_level_tag map[string]LogLevel
 	formatter     Formatter
+	writer        io.Writer
 }
 
 func New() Logger {
@@ -25,11 +50,11 @@ func (l *defaultLogger) format(tag string, level LogLevel, msg ...interface{}) [
 }
 
 func (l *defaultLogger) _print_error(tag string, level LogLevel, msg ...interface{}) {
-	log.Print(string(l.format(tag, level, msg...)))
+	l.writer.Write(l.format(tag, level, msg...))
 }
 
 func (l *defaultLogger) _print_info(tag string, level LogLevel, msg ...interface{}) {
-	log.Output(2, string(l.format(tag, level, msg...)))
+	l.writer.Write(l.format(tag, level, msg...))
 }
 
 func (l *defaultLogger) D(tag string, msg ...interface{}) {
@@ -128,6 +153,10 @@ func (l *defaultLogger) ResetLogLevel(tags ...string) {
 
 func (l *defaultLogger) SetFormatter(f Formatter) {
 	l.formatter = f
+}
+
+func (l *defaultLogger) SetWriter(w io.Writer) {
+	l.writer = w
 }
 
 func (l *defaultLogger) IsLoggable(level LogLevel, tags ...string) bool {
