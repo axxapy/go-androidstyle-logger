@@ -5,16 +5,19 @@ import (
 	"strconv"
 )
 
-type LogLevel uint
+type LogLevel uint8
 
 const (
-	DEBUG   = LogLevel(1)
-	ERROR   = LogLevel(2)
-	INFO    = LogLevel(4)
-	VERBOSE = LogLevel(8)
-	WARNING = LogLevel(16)
-	WTF     = LogLevel(32)
-	ALL     = DEBUG ^ ERROR ^ INFO ^ VERBOSE ^ WARNING ^ WTF
+	DEBUG LogLevel = 1 << iota
+	ERROR
+	INFO
+	VERBOSE
+	WARNING
+	WTF
+)
+
+const (
+	ALL = DEBUG ^ ERROR ^ INFO ^ VERBOSE ^ WARNING ^ WTF
 
 	LOG_LEVEL_DEFAULT = WARNING ^ ERROR ^ INFO
 )
