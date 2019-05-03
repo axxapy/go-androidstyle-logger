@@ -125,3 +125,21 @@ func TestDefaultLogger_WithTag(t *testing.T) {
 	ll := l.WithTag("XXX")
 	assert.Equal(t, "XXX", ll.(*simpleLogger).tag)
 }
+
+func TestDefaultLogger_Check(t *testing.T) {
+	l := New().SetLogLevel(ALL)
+	assert.NotNil(t, l.Check(INFO))
+
+	l.SetLogLevel(ALL ^ INFO)
+	assert.Nil(t, l.Check(INFO))
+}
+
+func TestDefaultLogger_CheckWithTag(t *testing.T) {
+	l := New().SetLogLevel(ALL)
+	assert.NotNil(t, l.CheckWithTag(INFO, "MY_TAG"))
+
+	l.SetLogLevel(ALL ^ INFO, "MY_TAG")
+	assert.Nil(t, l.CheckWithTag(INFO, "MY_TAG"))
+	assert.NotNil(t, l.CheckWithTag(WARNING, "MY_TAG"))
+	assert.NotNil(t, l.CheckWithTag(INFO, "OTHER_TAG"))
+}

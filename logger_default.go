@@ -28,6 +28,9 @@ type Logger interface {
 	IsLoggable(level LogLevel, tag string) bool
 
 	WithTag(tag string) SimpleLogger
+
+	Check(level LogLevel) Logger
+	CheckWithTag(level LogLevel, tag string) SimpleLogger
 }
 
 type defaultLogger struct {
@@ -168,4 +171,18 @@ func (l *defaultLogger) IsLoggable(level LogLevel, tag string) bool {
 	}
 
 	return l.log_level&level != 0
+}
+
+func (l *defaultLogger) Check(level LogLevel) Logger {
+	if l.IsLoggable(level, "") {
+		return l
+	}
+	return nil
+}
+
+func (l *defaultLogger) CheckWithTag(level LogLevel, tag string) SimpleLogger {
+	if l.IsLoggable(level, tag) {
+		return l.WithTag(tag)
+	}
+	return nil
 }

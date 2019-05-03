@@ -58,21 +58,14 @@ func WithTag(tag string) SimpleLogger {
 	return logger.WithTag(tag)
 }
 
-func Check(level LogLevel, tag string) Logger {
-	if logger.IsLoggable(level, tag) {
-		return logger
-	}
-	return nil
-}
-
-func CheckLevel(level LogLevel) Logger {
+func Check(level LogLevel) Logger {
 	if logger.IsLoggable(level, "") {
 		return logger
 	}
 	return nil
 }
 
-func CheckTagLevel(tag string, level LogLevel) SimpleLogger {
+func CheckWithTag(level LogLevel, tag string) SimpleLogger {
 	if logger.IsLoggable(level, tag) {
 		return logger.WithTag(tag)
 	}

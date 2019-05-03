@@ -1,17 +1,13 @@
 package l
 
 import (
-	"github.com/stretchr/testify/assert"
-	mocks "go-androidstyle-logger/_mocks"
 	"os"
 	"reflect"
 	"testing"
-)
 
-/*func TestMain(m *testing.M) {
-	logger = New()
-	os.Exit(m.Run())
-}*/
+	"github.com/stretchr/testify/assert"
+	mocks "go-androidstyle-logger/_mocks"
+)
 
 func TestGetLevelName(t *testing.T) {
 	assert.Equal(t, "I", GetLevelName(INFO))
@@ -81,9 +77,7 @@ func TestStatic_testLogFuncs(t *testing.T) {
 	w := &mocks.Writer{}
 
 	for level, f := range funcs {
-		logger = New()
-		logger.SetWriter(w)
-		logger.SetLogLevel(ALL)
+		logger = New().SetLogLevel(ALL).SetWriter(w)
 		w.Reset()
 
 		expected := DefaultFormatter(logger, "TAG", level, "some", "message", 123)
@@ -96,8 +90,7 @@ func TestStatic_testLogFuncs(t *testing.T) {
 		f("TAG", "some", "message", 123)
 		assert.Nil(t, w.Last())
 
-		logger.SetLogLevel(ALL)
-		logger.SetLogLevel(0, "TAG")
+		logger.SetLogLevel(ALL).SetLogLevel(0, "TAG")
 		f("TAG", "some", "message", 123)
 		assert.Nil(t, w.Last())
 	}
@@ -115,9 +108,7 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 	w := &mocks.Writer{}
 
 	for level, f := range funcs {
-		logger = New()
-		logger.SetLogLevel(ALL)
-		logger.SetWriter(w)
+		logger = New().SetLogLevel(ALL).SetWriter(w)
 		w.Reset()
 
 		expected := DefaultFormatter(logger, "TAG", level, "some - message - 123")
@@ -130,9 +121,25 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 		f("TAG", "some", "message", 123)
 		assert.Nil(t, w.Last())
 
-		logger.SetLogLevel(ALL)
-		logger.SetLogLevel(0, "TAG")
+		logger.SetLogLevel(ALL).SetLogLevel(0, "TAG")
 		f("TAG", "some", "message", 123)
 		assert.Nil(t, w.Last())
 	}
+}
+
+func TestCheck(t *testing.T) {
+	logger = New().SetLogLevel(ALL)
+	assert.NotNil(t, Check(INFO))
+
+	SetLogLevel(ALL^INFO)
+	assert.Nil(t, Check(INFO))
+}
+
+func TestCheckWithTag(t *testing.T) {
+	logger = New().SetLogLevel(ALL)
+	assert.NotNil(t, CheckWithTag(INFO, "TAG_NAME"))
+
+	SetLogLevel(ALL^INFO, "TAG_NAME")
+	assert.Nil(t, CheckWithTag(INFO, "TAG_NAME"))
+	assert.NotNil(t, CheckWithTag(INFO, "ANOTHER_TAG"))
 }

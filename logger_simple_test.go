@@ -76,3 +76,17 @@ func TestSimpleLogger_W(t *testing.T) {
 func TestSimpleLogger_Wf(t *testing.T) {
 	testSimpleLevelf(t, WARNING, lSimple.Wf)
 }
+
+func TestSimpleLogger_Check(t *testing.T) {
+	l := New().SetLogLevel(ALL)
+
+	lt := l.WithTag("MY_TAG")
+
+	assert.NotNil(t, lt.Check(INFO))
+
+	l.SetLogLevel(ALL^INFO)
+	assert.Nil(t, lt.Check(INFO))
+
+	l.SetLogLevel(ALL, "MY_TAG")
+	assert.NotNil(t, lt.Check(INFO))
+}

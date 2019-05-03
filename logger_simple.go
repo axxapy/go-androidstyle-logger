@@ -13,6 +13,8 @@ type SimpleLogger interface {
 	If(msg string, args ...interface{})
 
 	Fatal(err error)
+
+	Check(level LogLevel) SimpleLogger
 }
 
 type simpleLogger struct {
@@ -62,4 +64,11 @@ func (l *simpleLogger) If(msg string, args ...interface{}) {
 
 func (l *simpleLogger) Fatal(err error) {
 	l.logger.Fatal(l.tag, err)
+}
+
+func (l *simpleLogger) Check(level LogLevel) SimpleLogger {
+	if l.logger.IsLoggable(level, l.tag) {
+		return l
+	}
+	return nil
 }
