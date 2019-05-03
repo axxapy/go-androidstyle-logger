@@ -2,79 +2,64 @@ package l
 
 import (
 	"github.com/stretchr/testify/assert"
+	"go-androidstyle-logger/_mocks"
 	"testing"
 )
 
-var (
-	lSimple = l.WithTag("MY_TAG")
-)
+func TestSimpleLevelFuncs(t *testing.T) {
+	w := &mocks.Writer{}
+	l := New().SetLogLevel(ALL).SetWriter(w)
+	lSimple := l.WithTag("MY_TAG")
 
-func testSimpleLevel(t *testing.T, level LogLevel, f func(msg ...interface{})) {
-	w.Reset()
-	l.SetLogLevel(ALL)
-	f("some", "message", 123)
+	funcs := map[LogLevel]func(msg ...interface{}){
+		DEBUG:   lSimple.D,
+		ERROR:   lSimple.E,
+		INFO:    lSimple.I,
+		VERBOSE: lSimple.V,
+		WARNING: lSimple.W,
+	}
 
-	expected := string(DefaultFormatter(l, "MY_TAG", level, "some", "message", 123))
-	assert.Equal(t, expected, string(w.Last()))
+	for level, f := range funcs {
+		w.Reset()
+		l.SetLogLevel(ALL)
+		f("some", "message", 123)
 
-	w.Reset()
-	l.SetLogLevel(ALL ^ level)
-	f("some", "message", 123)
-	assert.Nil(t, w.Last())
+		expected := string(DefaultFormatter(l, "MY_TAG", level, "some", "message", 123))
+		assert.Equal(t, expected, string(w.Last()))
+
+		w.Reset()
+		l.SetLogLevel(ALL ^ level)
+		f("some", "message", 123)
+		assert.Nil(t, w.Last())
+	}
 }
 
-func testSimpleLevelf(t *testing.T, level LogLevel, f func(msg string, args ...interface{})) {
-	w.Reset()
-	l.SetLogLevel(ALL)
-	f("%s - %s - %d", "some", "message", 123)
+func TestSimpleLevelFuncs_f(t *testing.T) {
+	w := &mocks.Writer{}
+	l := New().SetLogLevel(ALL).SetWriter(w)
+	lSimple := l.WithTag("MY_TAG")
 
-	expected := string(DefaultFormatter(l, "MY_TAG", level, "some - message - 123"))
-	assert.Equal(t, expected, string(w.Last()))
+	funcs := map[LogLevel]func(msg string, args ...interface{}){
+		DEBUG:   lSimple.Df,
+		ERROR:   lSimple.Ef,
+		INFO:    lSimple.If,
+		VERBOSE: lSimple.Vf,
+		WARNING: lSimple.Wf,
+	}
 
-	w.Reset()
-	l.SetLogLevel(ALL ^ level)
-	f("%s - %s - %d", "some", "message", 123)
-	assert.Nil(t, w.Last())
-}
+	for level, f := range funcs {
+		w.Reset()
+		l.SetLogLevel(ALL)
+		f("%s - %s - %d", "some", "message", 123)
 
-func TestSimpleLogger_D(t *testing.T) {
-	testSimpleLevel(t, DEBUG, lSimple.D)
-}
+		expected := string(DefaultFormatter(l, "MY_TAG", level, "some - message - 123"))
+		assert.Equal(t, expected, string(w.Last()))
 
-func TestSimpleLogger_Df(t *testing.T) {
-	testSimpleLevelf(t, DEBUG, lSimple.Df)
-}
-
-func TestSimpleLogger_E(t *testing.T) {
-	testSimpleLevel(t, ERROR, lSimple.E)
-}
-
-func TestSimpleLogger_Ef(t *testing.T) {
-	testSimpleLevelf(t, ERROR, lSimple.Ef)
-}
-
-func TestSimpleLogger_I(t *testing.T) {
-	testSimpleLevel(t, INFO, lSimple.I)
-}
-
-func TestSimpleLogger_If(t *testing.T) {
-	testSimpleLevelf(t, INFO, lSimple.If)
-}
-
-func TestSimpleLogger_V(t *testing.T) {
-	testSimpleLevel(t, VERBOSE, lSimple.V)
-}
-
-func TestSimpleLogger_Vf(t *testing.T) {
-	testSimpleLevelf(t, VERBOSE, lSimple.Vf)
-}
-
-func TestSimpleLogger_W(t *testing.T) {
-	testSimpleLevel(t, WARNING, lSimple.W)
-}
-
-func TestSimpleLogger_Wf(t *testing.T) {
-	testSimpleLevelf(t, WARNING, lSimple.Wf)
+		w.Reset()
+		l.SetLogLevel(ALL ^ level)
+		f("%s - %s - %d", "some", "message", 123)
+		assert.Nil(t, w.Last())
+	}
 }
 
 func TestSimpleLogger_Check(t *testing.T) {
@@ -84,7 +69,7 @@ func TestSimpleLogger_Check(t *testing.T) {
 
 	assert.NotNil(t, lt.Check(INFO))
 
-	l.SetLogLevel(ALL^INFO)
+	l.SetLogLevel(ALL ^ INFO)
 	assert.Nil(t, lt.Check(INFO))
 
 	l.SetLogLevel(ALL, "MY_TAG")
