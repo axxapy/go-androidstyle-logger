@@ -24,7 +24,7 @@ func TestJsonFormatter(t *testing.T) {
 
 	for level, levelName := range levelNames {
 		line := JsonFormatter(l, tag, level, "some", "message", 123)
-		expect := fmt.Sprintf(`{"level":"%d","levelName":"%s","msg":"some message 123","tag":"%s"}`+"\n", level, levelName, tag)
+		expect := fmt.Sprintf(`{"level":%d,"levelName":"%s","tag":"%s","msg":"some message 123"}`+"\n", level, levelName, tag)
 		assert.Equal(t, expect, string(line))
 	}
 }
