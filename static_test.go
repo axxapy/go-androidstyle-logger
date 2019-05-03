@@ -2,10 +2,16 @@ package l
 
 import (
 	"github.com/stretchr/testify/assert"
+	mocks "go-androidstyle-logger/_mocks"
 	"os"
 	"reflect"
 	"testing"
 )
+
+/*func TestMain(m *testing.M) {
+	logger = New()
+	os.Exit(m.Run())
+}*/
 
 func TestGetLevelName(t *testing.T) {
 	assert.Equal(t, "I", GetLevelName(INFO))
@@ -63,84 +69,70 @@ func TestWithTag(t *testing.T) {
 	assert.Equal(t, "TAG", tagged.(*simpleLogger).tag)
 }
 
-func testStatic_testLogFunc(t *testing.T, level LogLevel, f func (tag string, msg ...interface{})) {
-	logger.SetLogLevel(ALL)
-	logger.SetWriter(w)
-	w.Reset()
+func TestStatic_testLogFuncs(t *testing.T) {
+	funcs := map[LogLevel]func(tag string, msg ...interface{}){
+		DEBUG:   D,
+		ERROR:   E,
+		INFO:    I,
+		VERBOSE: V,
+		WARNING: W,
+	}
 
-	expected := DefaultFormatter(logger, "TAG", level, "some", "message", 123)
-	f("TAG", "some", "message", 123)
+	w := &mocks.Writer{}
 
-	assert.Equal(t, string(expected), string(w.Last()))
+	for level, f := range funcs {
+		logger = New()
+		logger.SetWriter(w)
+		logger.SetLogLevel(ALL)
+		w.Reset()
 
-	w.Reset()
-	logger.SetLogLevel(ALL^level)
-	f("TAG", "some", "message", 123)
-	assert.Nil(t, w.Last())
+		expected := DefaultFormatter(logger, "TAG", level, "some", "message", 123)
+		f("TAG", "some", "message", 123)
 
-	logger.SetLogLevel(ALL)
-	logger.SetLogLevel(0, "TAG")
-	f("TAG", "some", "message", 123)
-	assert.Nil(t, w.Last())
+		assert.Equal(t, string(expected), string(w.Last()))
+
+		w.Reset()
+		logger.SetLogLevel(ALL ^ level)
+		f("TAG", "some", "message", 123)
+		assert.Nil(t, w.Last())
+
+		logger.SetLogLevel(ALL)
+		logger.SetLogLevel(0, "TAG")
+		f("TAG", "some", "message", 123)
+		assert.Nil(t, w.Last())
+	}
 }
 
-func testStatic_testLogFuncf(t *testing.T, level LogLevel, f func (tag string, msg string, args ...interface{})) {
-	logger.SetLogLevel(ALL)
-	logger.SetWriter(w)
-	w.Reset()
+func TestStatic_testLogFuncs_f(t *testing.T) {
+	funcs := map[LogLevel]func(tag string, msg string, args ...interface{}){
+		DEBUG:   Df,
+		ERROR:   Ef,
+		INFO:    If,
+		VERBOSE: Vf,
+		WARNING: Wf,
+	}
 
-	expected := DefaultFormatter(logger, "TAG", level, "some - message - 123",)
-	f("TAG", "%s - %s - %d", "some", "message", 123)
+	w := &mocks.Writer{}
 
-	assert.Equal(t, string(expected), string(w.Last()))
+	for level, f := range funcs {
+		logger = New()
+		logger.SetLogLevel(ALL)
+		logger.SetWriter(w)
+		w.Reset()
 
-	w.Reset()
-	logger.SetLogLevel(ALL^level)
-	f("TAG", "some", "message", 123)
-	assert.Nil(t, w.Last())
+		expected := DefaultFormatter(logger, "TAG", level, "some - message - 123")
+		f("TAG", "%s - %s - %d", "some", "message", 123)
 
-	logger.SetLogLevel(ALL)
-	logger.SetLogLevel(0, "TAG")
-	f("TAG", "some", "message", 123)
-	assert.Nil(t, w.Last())
-}
+		assert.Equal(t, string(expected), string(w.Last()))
 
-func TestD(t *testing.T) {
-	testStatic_testLogFunc(t, DEBUG, D)
-}
+		w.Reset()
+		logger.SetLogLevel(ALL ^ level)
+		f("TAG", "some", "message", 123)
+		assert.Nil(t, w.Last())
 
-func TestDf(t *testing.T) {
-	testStatic_testLogFuncf(t, DEBUG, Df)
-}
-
-func TestE(t *testing.T) {
-	testStatic_testLogFunc(t, ERROR, E)
-}
-
-func TestEf(t *testing.T) {
-	testStatic_testLogFuncf(t, ERROR, Ef)
-}
-
-func TestI(t *testing.T) {
-	testStatic_testLogFunc(t, INFO, I)
-}
-
-func TestIf(t *testing.T) {
-	testStatic_testLogFuncf(t, INFO, If)
-}
-
-func TestV(t *testing.T) {
-	testStatic_testLogFunc(t, VERBOSE, V)
-}
-
-func TestVf(t *testing.T) {
-	testStatic_testLogFuncf(t, VERBOSE, Vf)
-}
-
-func TestW(t *testing.T) {
-	testStatic_testLogFunc(t, WARNING, W)
-}
-
-func TestWf(t *testing.T) {
-	testStatic_testLogFuncf(t, WARNING, Wf)
+		logger.SetLogLevel(ALL)
+		logger.SetLogLevel(0, "TAG")
+		f("TAG", "some", "message", 123)
+		assert.Nil(t, w.Last())
+	}
 }

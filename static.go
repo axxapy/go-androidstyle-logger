@@ -38,7 +38,6 @@ func GetLevelName(level LogLevel) string {
 	return strconv.Itoa(int(level))
 }
 
-
 func SetLogLevel(level LogLevel, tags ...string) {
 	logger.SetLogLevel(level, tags...)
 }
