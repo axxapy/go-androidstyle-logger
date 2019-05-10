@@ -2,18 +2,17 @@ package l
 
 import (
 	"github.com/stretchr/testify/assert"
-	"go-androidstyle-logger/_mocks"
 	"reflect"
 	"testing"
 )
 
 var (
-	w = &mocks.Writer{}
+	w = new(InMemoryWriter)
 	l = New().SetWriter(w).(*defaultLogger)
 )
 
 func TestLevelFuncs(t *testing.T) {
-	w := &mocks.Writer{}
+	w := new(InMemoryWriter)
 	l := New().SetWriter(w)
 
 	funcs := map[LogLevel]func(tag string, msg ...interface{}){
@@ -42,7 +41,7 @@ func TestLevelFuncs(t *testing.T) {
 }
 
 func TestLevelFuncs_f(t *testing.T) {
-	w := &mocks.Writer{}
+	w := new(InMemoryWriter)
 	l := New().SetWriter(w)
 
 	funcs := map[LogLevel]func(tag string, msg string, args ...interface{}){

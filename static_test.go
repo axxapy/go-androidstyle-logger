@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	mocks "go-androidstyle-logger/_mocks"
 )
 
 func TestGetLevelName(t *testing.T) {
@@ -74,7 +73,7 @@ func TestStatic_testLogFuncs(t *testing.T) {
 		WARNING: W,
 	}
 
-	w := &mocks.Writer{}
+	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
 		logger = New().SetLogLevel(ALL).SetWriter(w)
@@ -105,7 +104,7 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 		WARNING: Wf,
 	}
 
-	w := &mocks.Writer{}
+	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
 		logger = New().SetLogLevel(ALL).SetWriter(w)
