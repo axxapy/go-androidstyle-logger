@@ -12,6 +12,9 @@ type SimpleLogger interface {
 	I(msg ...interface{})
 	If(msg string, args ...interface{})
 
+	GetTag() string
+	SetTag(tag string)
+
 	Fatal(err error)
 
 	Check(level LogLevel) SimpleLogger
@@ -71,4 +74,12 @@ func (l *simpleLogger) Check(level LogLevel) SimpleLogger {
 		return l
 	}
 	return nil
+}
+
+func (l *simpleLogger) SetTag(tag string) {
+	l.tag = tag
+}
+
+func (l* simpleLogger) GetTag() string {
+	return l.tag
 }

@@ -74,3 +74,15 @@ func TestSimpleLogger_Check(t *testing.T) {
 	l.SetLogLevel(ALL, "MY_TAG")
 	assert.NotNil(t, lt.Check(INFO))
 }
+
+func TestSimpleLogger_GetTag(t *testing.T) {
+	l := New().WithTag("tag1")
+	assert.Equal(t, "tag1", l.GetTag())
+}
+
+func TestSimpleLogger_SetTag(t *testing.T) {
+	l := New().WithTag("tag1")
+	assert.Equal(t, "tag1", l.GetTag())
+	l.SetTag("tag2")
+	assert.Equal(t, "tag2", l.GetTag())
+}
