@@ -1,4 +1,4 @@
-module go-androidstyle-logger
+module github.com/axxapy/go-androidstyle-logger
 
 go 1.12
 
