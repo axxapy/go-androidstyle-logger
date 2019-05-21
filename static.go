@@ -30,6 +30,7 @@ var (
 		ERROR:   "E",
 		INFO:    "I",
 		VERBOSE: "V",
+		WARNING: "W",
 		WTF:     "WTF",
 	}
 )
