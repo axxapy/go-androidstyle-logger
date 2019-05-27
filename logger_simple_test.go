@@ -92,5 +92,5 @@ func TestSimpleLogger_WithTag(t *testing.T) {
 	l := New().WithTag("tag1")
 	assert.Equal(t, "tag1", l.GetTag())
 	l1 := l.WithTag("tag2")
-	assert.Equal(t, "tag1|tag2", l1.GetTag())
+	assert.Equal(t, "tag1>tag2", l1.GetTag())
 }

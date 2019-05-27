@@ -89,6 +89,6 @@ func (l *simpleLogger) GetTag() string {
 func (l *simpleLogger) WithTag(tag string) SimpleLogger {
 	return &simpleLogger{
 		logger: l.logger,
-		tag:    l.tag + "|" + tag,
+		tag:    l.tag + ">" + tag,
 	}
 }
