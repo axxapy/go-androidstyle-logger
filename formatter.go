@@ -3,19 +3,25 @@ package l
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type Formatter func(l Logger, tag string, level LogLevel, msg ...interface{}) []byte
 
 type jsonLogEntry struct {
+	Timestamp int64  `json:"timestamp"`
 	Level     int    `json:"level"`
 	LevelName string `json:"levelName"`
 	Tag       string `json:"tag"`
 	Msg       string `json:"msg"`
 }
 
+var Now = func() time.Time {
+	return time.Now()
+}
+
 func DefaultFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {
-	return []byte("[" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...))
+	return []byte("[" + Now().Format("2006-01-02 15:04:05.999") + "] [" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...))
 }
 
 func JsonFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {
@@ -24,6 +30,7 @@ func JsonFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []b
 		message = message[:len(message)-1]
 	}
 	b, err := json.Marshal(jsonLogEntry{
+		Timestamp: Now().UnixNano(),
 		Tag:       tag,
 		Level:     int(level),
 		LevelName: GetLevelName(level),
