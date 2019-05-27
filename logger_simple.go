@@ -17,6 +17,8 @@ type SimpleLogger interface {
 
 	Fatal(err error)
 
+	WithTag(tag string) SimpleLogger
+
 	Check(level LogLevel) SimpleLogger
 }
 
@@ -82,4 +84,11 @@ func (l *simpleLogger) SetTag(tag string) {
 
 func (l* simpleLogger) GetTag() string {
 	return l.tag
+}
+
+func (l *simpleLogger) WithTag(tag string) SimpleLogger {
+	return &simpleLogger{
+		logger: l.logger,
+		tag:    l.tag + "|" + tag,
+	}
 }
