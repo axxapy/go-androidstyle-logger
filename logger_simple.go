@@ -82,7 +82,7 @@ func (l *simpleLogger) SetTag(tag string) {
 	l.tag = tag
 }
 
-func (l* simpleLogger) GetTag() string {
+func (l *simpleLogger) GetTag() string {
 	return l.tag
 }
 
