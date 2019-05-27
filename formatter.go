@@ -21,7 +21,7 @@ var Now = func() time.Time {
 }
 
 func DefaultFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {
-	return []byte("[" + Now().Format("2006-01-02 15:04:05.999") + "] [" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...))
+	return []byte("[" + Now().Format("2006-01-02 15:04:05.000") + "] [" + GetLevelName(level) + "] [" + tag + "] " + fmt.Sprintln(msg...))
 }
 
 func JsonFormatter(l Logger, tag string, level LogLevel, msg ...interface{}) []byte {

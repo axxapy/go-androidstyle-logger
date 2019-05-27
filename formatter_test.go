@@ -12,7 +12,7 @@ func TestDefaultFormatter(t *testing.T) {
 	origNow := Now
 	defer func() {Now = origNow}()
 
-	now := time.Now()
+	now, _ := time.Parse("2006-01-02 15:04:05.999", "2019-05-27 02:23:14.34")
 	Now = func() time.Time {
 		return now
 	}
@@ -22,7 +22,7 @@ func TestDefaultFormatter(t *testing.T) {
 
 	for level, levelName := range levelNames {
 		result := DefaultFormatter(l, tag, level, "some", "message", 123)
-		expected := fmt.Sprintf("[%s] [%s] [%s] some message 123\n", Now().Format("2006-01-02 15:04:05.999"), levelName, tag)
+		expected := fmt.Sprintf("[%s] [%s] [%s] some message 123\n", Now().Format("2006-01-02 15:04:05.000"), levelName, tag)
 		assert.Equal(t, expected, string(result))
 	}
 }
