@@ -20,7 +20,7 @@ func TestDefaultFormatter(t *testing.T) {
 	tag := "TAG"
 
 	for level, levelName := range levelNames {
-		result := DefaultFormatter(tag, level, "some", "message", 123)
+		result := DefaultFormatter(tag, level, "test.go", 123, "some", "message", 123)
 		expected := fmt.Sprintf("[%s] [%s] [%s] some message 123\n", now().Format("2006-01-02 15:04:05.000"), levelName, tag)
 		assert.Equal(t, expected, string(result))
 	}
@@ -39,7 +39,7 @@ func TestJsonFormatter(t *testing.T) {
 	ts := now().UnixNano()
 
 	for level, levelName := range levelNames {
-		line := JsonFormatter(tag, level, "some", "message", 123)
+		line := JsonFormatter(tag, level, "file.go", 123, "some", "message", 123)
 		expect := fmt.Sprintf(`{"timestamp":%d,"level":%d,"levelName":"%s","tag":"%s","msg":"some message 123"}`+"\n", ts, level, levelName, tag)
 		assert.Equal(t, expect, string(line))
 	}

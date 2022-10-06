@@ -32,8 +32,6 @@ type baseLoggerInterface interface {
 
 	Check(level LogLevel) baseLoggerInterface
 	CheckWithTag(level LogLevel, tag string) Logger
-
-	caller() (string, int)
 }
 
 type baseLogger struct {
@@ -44,27 +42,30 @@ type baseLogger struct {
 	callerDeep     int
 }
 
-func newBaseLogger() baseLoggerInterface {
+func newBaseLogger() *baseLogger {
 	return &baseLogger{
 		logLevel:       LOG_LEVEL_DEFAULT,
 		logLevelPerTag: make(map[string]LogLevel),
 		formatter:      DefaultFormatter,
 		writer:         os.Stderr,
-		callerDeep:     2,
+		callerDeep:     3,
 	}
 }
 
-func (l *baseLogger) format(tag string, level LogLevel, msg ...interface{}) []byte {
-	return l.formatter(tag, level, msg...)
-}
-
-func (l *baseLogger) print(tag string, level LogLevel, msg ...interface{}) {
-	l.writer.Write(l.format(tag, level, msg...))
+func (l *baseLogger) format(tag string, level LogLevel, file string, line int, msg ...interface{}) []byte {
+	return l.formatter(tag, level, file, line, msg...)
 }
 
 func (l *baseLogger) caller() (string, int) {
-	_, filename, line, _ := runtime.Caller(l.callerDeep)
-	return filename, line
+	if _, file, line, ok := runtime.Caller(l.callerDeep); ok {
+		return file, line
+	}
+	return "", 0
+}
+
+func (l *baseLogger) print(tag string, level LogLevel, msg ...interface{}) {
+	file, line := l.caller()
+	l.writer.Write(l.format(tag, level, file, line, msg...))
 }
 
 func (l *baseLogger) D(tag string, msg ...interface{}) {

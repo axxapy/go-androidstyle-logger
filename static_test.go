@@ -15,48 +15,48 @@ func TestGetLevelName(t *testing.T) {
 
 func TestSetLogLevel(t *testing.T) {
 	SetLogLevel(ALL)
-	assert.Equal(t, ALL, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
+	assert.Equal(t, ALL, logger.(*taggedLogger).baseLogger.logLevel)
 
 	SetLogLevel(INFO)
-	assert.Equal(t, INFO, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
+	assert.Equal(t, INFO, logger.(*taggedLogger).baseLogger.logLevel)
 
 	SetLogLevel(WARNING, "TAG1", "TAG2")
-	assert.Equal(t, INFO, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG1"])
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG2"])
+	assert.Equal(t, INFO, logger.(*taggedLogger).baseLogger.logLevel)
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG1"])
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG2"])
 }
 
 func TestResetLogLevel(t *testing.T) {
 	SetLogLevel(ALL)
 	SetLogLevel(WARNING, "TAG1", "TAG2")
-	assert.Equal(t, ALL, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG1"])
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG2"])
+	assert.Equal(t, ALL, logger.(*taggedLogger).baseLogger.logLevel)
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG1"])
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG2"])
 
 	ResetLogLevel()
-	assert.Equal(t, LOG_LEVEL_DEFAULT, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG1"])
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG2"])
+	assert.Equal(t, LOG_LEVEL_DEFAULT, logger.(*taggedLogger).baseLogger.logLevel)
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG1"])
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG2"])
 
 	ResetLogLevel("TAG1")
-	assert.Equal(t, LOG_LEVEL_DEFAULT, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevel)
-	assert.Equal(t, LogLevel(0), logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG1"])
-	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.(*baseLogger).logLevelPerTag["TAG2"])
+	assert.Equal(t, LOG_LEVEL_DEFAULT, logger.(*taggedLogger).baseLogger.logLevel)
+	assert.Equal(t, LogLevel(0), logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG1"])
+	assert.Equal(t, WARNING, logger.(*taggedLogger).baseLogger.logLevelPerTag["TAG2"])
 }
 
 func TestSetFormatter(t *testing.T) {
 	jsFuncPointer := reflect.ValueOf(JsonFormatter).Pointer()
-	assert.NotEqual(t, reflect.ValueOf(logger.(*taggedLogger).baseLogger.(*baseLogger).formatter).Pointer(), jsFuncPointer)
+	assert.NotEqual(t, reflect.ValueOf(logger.(*taggedLogger).baseLogger.formatter).Pointer(), jsFuncPointer)
 
 	SetFormatter(JsonFormatter)
-	assert.Equal(t, reflect.ValueOf(logger.(*taggedLogger).baseLogger.(*baseLogger).formatter).Pointer(), jsFuncPointer)
+	assert.Equal(t, reflect.ValueOf(logger.(*taggedLogger).baseLogger.formatter).Pointer(), jsFuncPointer)
 }
 
 func TestSetWriter(t *testing.T) {
-	assert.NotEqual(t, os.Stdout, logger.(*taggedLogger).baseLogger.(*baseLogger).writer)
+	assert.NotEqual(t, os.Stdout, logger.(*taggedLogger).baseLogger.writer)
 
 	SetWriter(os.Stdout)
-	assert.Equal(t, os.Stdout, logger.(*taggedLogger).baseLogger.(*baseLogger).writer)
+	assert.Equal(t, os.Stdout, logger.(*taggedLogger).baseLogger.writer)
 }
 
 func TestWithTag(t *testing.T) {
@@ -79,7 +79,7 @@ func TestStatic_testLogFuncs(t *testing.T) {
 		logger = New().SetLogLevel(ALL).SetWriter(w)
 		w.Reset()
 
-		expected := DefaultFormatter("TAG", level, "some", "message", 123)
+		expected := DefaultFormatter("TAG", level, "file.go", 123, "some", "message", 123)
 		f("TAG", "some", "message", 123)
 
 		assert.Equal(t, string(expected), string(w.Last()))
@@ -110,7 +110,7 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 		logger = New().SetLogLevel(ALL).SetWriter(w)
 		w.Reset()
 
-		expected := DefaultFormatter("TAG", level, "some - message - 123")
+		expected := DefaultFormatter("TAG", level, "file.go", 123, "some - message - 123")
 		f("TAG", "%s - %s - %d", "some", "message", 123)
 
 		assert.Equal(t, string(expected), string(w.Last()))

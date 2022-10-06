@@ -24,7 +24,7 @@ func TestSimpleLevelFuncs(t *testing.T) {
 		l.SetLogLevel(ALL)
 		f("some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "some", "message", 123))
+		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some", "message", 123))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()
@@ -52,7 +52,7 @@ func TestSimpleLevelFuncs_f(t *testing.T) {
 		l.SetLogLevel(ALL)
 		f("%s - %s - %d", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "some - message - 123"))
+		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some - message - 123"))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()

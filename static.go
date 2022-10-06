@@ -35,9 +35,11 @@ var (
 )
 
 func New() Logger {
-	return &taggedLogger{
+	logger := &taggedLogger{
 		baseLogger: newBaseLogger(),
 	}
+	logger.baseLogger.callerDeep++
+	return logger
 }
 
 func Default() Logger {

@@ -32,7 +32,7 @@ type Logger interface {
 }
 
 type taggedLogger struct {
-	baseLogger baseLoggerInterface
+	baseLogger *baseLogger
 	tag        string
 }
 

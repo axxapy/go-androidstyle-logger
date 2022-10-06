@@ -76,7 +76,7 @@ func TestReplaceGoDefaultLogger(t *testing.T) {
 				return
 			}
 
-			expected := string(DefaultFormatter("builtin", test.builtinLogLevel, "some - message - 123"))
+			expected := string(DefaultFormatter("builtin", test.builtinLogLevel, "file.go", 123, "some - message - 123"))
 			assert.Equal(t, expected, string(w.Last()))
 		})
 	}

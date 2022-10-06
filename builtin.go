@@ -31,6 +31,10 @@ func ReplaceGoDefaultLogger(logger Logger, defaultLevel LogLevel) error {
 	log.Default().SetOutput(builtinWriter(logFunc))
 	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
 
+	if l, ok := logger.(*taggedLogger); ok {
+		l.baseLogger.callerDeep += 3
+	}
+
 	return nil
 }
 

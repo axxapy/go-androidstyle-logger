@@ -1,6 +1,7 @@
 package l
 
 import (
+	"log"
 	"reflect"
 	"testing"
 
@@ -30,7 +31,7 @@ func TestLevelFuncs(t *testing.T) {
 
 		f("MY_TAG", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "some", "message", 123))
+		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some", "message", 123))
 		lst := string(w.Last())
 		assert.Equal(t, expected, lst)
 
@@ -39,6 +40,20 @@ func TestLevelFuncs(t *testing.T) {
 		f("MY_TAG", "some", "message", 123)
 		assert.Nil(t, w.Last())
 	}
+}
+
+func TestTest(t *testing.T) {
+	base := newBaseLogger().SetLogLevel(ALL)
+	base.D("TEST BASE")
+
+	l := New().SetLogLevel(ALL)
+	l.D("TEST")
+
+	l.WithTag("FirstTag").WithTag("SecondTag").D("TEST")
+
+	ReplaceGoDefaultLogger(l, DEBUG)
+
+	log.Println("TEST DEFAULT")
 }
 
 func TestLevelFuncs_f(t *testing.T) {
@@ -59,7 +74,7 @@ func TestLevelFuncs_f(t *testing.T) {
 
 		f("MY_TAG", "%s - %s - %d", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "some - message - 123"))
+		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some - message - 123"))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()
