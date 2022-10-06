@@ -29,6 +29,9 @@ type Logger interface {
 	Check(level LogLevel) Logger
 
 	WithTag(tag string) Logger
+
+	Flags() Flag
+	SetFlags(flags Flag) Logger
 }
 
 type taggedLogger struct {
@@ -127,4 +130,13 @@ func (l *taggedLogger) SetWriter(w io.Writer) Logger {
 
 func (l *taggedLogger) IsLoggable(level LogLevel, tag string) bool {
 	return l.baseLogger.IsLoggable(level, tag)
+}
+
+func (l *taggedLogger) Flags() Flag {
+	return l.baseLogger.flags
+}
+
+func (l *taggedLogger) SetFlags(flags Flag) Logger {
+	l.baseLogger.flags = flags
+	return l
 }

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type baseLoggerInterface interface {
@@ -32,6 +34,9 @@ type baseLoggerInterface interface {
 
 	Check(level LogLevel) baseLoggerInterface
 	CheckWithTag(level LogLevel, tag string) Logger
+
+	Flags() Flag
+	SetFlags(flags Flag) baseLoggerInterface
 }
 
 type baseLogger struct {
@@ -40,6 +45,8 @@ type baseLogger struct {
 	formatter      Formatter
 	writer         io.Writer
 	callerDeep     int
+	uint8          int
+	flags          Flag
 }
 
 func newBaseLogger() *baseLogger {
@@ -49,6 +56,7 @@ func newBaseLogger() *baseLogger {
 		formatter:      DefaultFormatter,
 		writer:         os.Stderr,
 		callerDeep:     3,
+		flags:          FLAG_FILE_ONLY_NAME,
 	}
 }
 
@@ -57,9 +65,37 @@ func (l *baseLogger) format(tag string, level LogLevel, file string, line int, m
 }
 
 func (l *baseLogger) caller() (string, int) {
-	if _, file, line, ok := runtime.Caller(l.callerDeep); ok {
+	if l.flags&FLAG_NO_FILENAME != 0 {
+		return "", 0
+	}
+
+	pc, file, line, ok := runtime.Caller(l.callerDeep)
+	if !ok {
+		return "", 0
+	}
+
+	if l.flags&FLAG_FILE_FULL_PATH != 0 {
 		return file, line
 	}
+
+	file = filepath.Base(file)
+
+	if l.flags&FLAG_FILE_ONLY_NAME != 0 {
+		return file, line
+	}
+
+	if l.flags&FLAG_FILE_WITH_PACKAGE != 0 {
+		parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
+		pl := len(parts)
+		packageName := ""
+		if parts[pl-2][0] == '(' {
+			packageName = strings.Join(parts[0:pl-2], ".")
+		} else {
+			packageName = strings.Join(parts[0:pl-1], ".")
+		}
+		return packageName + "/" + file, line
+	}
+
 	return "", 0
 }
 
@@ -196,4 +232,13 @@ func (l *baseLogger) CheckWithTag(level LogLevel, tag string) Logger {
 		return l.WithTag(tag)
 	}
 	return nil
+}
+
+func (l *baseLogger) Flags() Flag {
+	return l.flags
+}
+
+func (l *baseLogger) SetFlags(flags Flag) baseLoggerInterface {
+	l.flags = flags
+	return l
 }

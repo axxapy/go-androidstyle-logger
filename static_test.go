@@ -76,10 +76,10 @@ func TestStatic_testLogFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
-		logger = New().SetLogLevel(ALL).SetWriter(w)
+		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 		w.Reset()
 
-		expected := DefaultFormatter("TAG", level, "file.go", 123, "some", "message", 123)
+		expected := DefaultFormatter("TAG", level, "", 0, "some", "message", 123)
 		f("TAG", "some", "message", 123)
 
 		assert.Equal(t, string(expected), string(w.Last()))
@@ -107,10 +107,10 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
-		logger = New().SetLogLevel(ALL).SetWriter(w)
+		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 		w.Reset()
 
-		expected := DefaultFormatter("TAG", level, "file.go", 123, "some - message - 123")
+		expected := DefaultFormatter("TAG", level, "", 0, "some - message - 123")
 		f("TAG", "%s - %s - %d", "some", "message", 123)
 
 		assert.Equal(t, string(expected), string(w.Last()))

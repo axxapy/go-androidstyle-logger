@@ -51,7 +51,7 @@ func TestReplaceGoDefaultLogger(t *testing.T) {
 	}
 
 	w := new(InMemoryWriter)
-	logger := New().SetWriter(w)
+	logger := New().SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 
 	now = func() time.Time {
 		t, _ := time.Parse("2006-01-02 15:04:05.999", "2022-10-05 22:53:31.34")
@@ -76,7 +76,7 @@ func TestReplaceGoDefaultLogger(t *testing.T) {
 				return
 			}
 
-			expected := string(DefaultFormatter("builtin", test.builtinLogLevel, "file.go", 123, "some - message - 123"))
+			expected := string(DefaultFormatter("builtin", test.builtinLogLevel, "", 0, "some - message - 123"))
 			assert.Equal(t, expected, string(w.Last()))
 		})
 	}

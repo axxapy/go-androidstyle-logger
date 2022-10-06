@@ -34,6 +34,15 @@ var (
 	}
 )
 
+type Flag uint8
+
+const (
+	FLAG_FILE_FULL_PATH Flag = 1 << iota
+	FLAG_FILE_ONLY_NAME
+	FLAG_FILE_WITH_PACKAGE
+	FLAG_NO_FILENAME
+)
+
 func New() Logger {
 	logger := &taggedLogger{
 		baseLogger: newBaseLogger(),

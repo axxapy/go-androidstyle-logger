@@ -8,7 +8,7 @@ import (
 
 func TestSimpleLevelFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w)
+	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 	lSimple := l.WithTag("MY_TAG")
 
 	funcs := map[LogLevel]func(msg ...interface{}){
@@ -24,7 +24,7 @@ func TestSimpleLevelFuncs(t *testing.T) {
 		l.SetLogLevel(ALL)
 		f("some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some", "message", 123))
+		expected := string(DefaultFormatter("MY_TAG", level, "", 0, "some", "message", 123))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()
@@ -36,7 +36,7 @@ func TestSimpleLevelFuncs(t *testing.T) {
 
 func TestSimpleLevelFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w)
+	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 	lSimple := l.WithTag("MY_TAG")
 
 	funcs := map[LogLevel]func(msg string, args ...interface{}){
@@ -52,7 +52,7 @@ func TestSimpleLevelFuncs_f(t *testing.T) {
 		l.SetLogLevel(ALL)
 		f("%s - %s - %d", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some - message - 123"))
+		expected := string(DefaultFormatter("MY_TAG", level, "", 0, "some - message - 123"))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()

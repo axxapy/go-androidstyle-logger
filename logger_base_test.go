@@ -1,8 +1,10 @@
 package l
 
 import (
-	"log"
+	"path"
 	"reflect"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +17,7 @@ var (
 
 func TestLevelFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetWriter(w)
+	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 
 	funcs := map[LogLevel]func(tag string, msg ...interface{}){
 		DEBUG:   l.D,
@@ -31,7 +33,7 @@ func TestLevelFuncs(t *testing.T) {
 
 		f("MY_TAG", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some", "message", 123))
+		expected := string(DefaultFormatter("MY_TAG", level, "", 0, "some", "message", 123))
 		lst := string(w.Last())
 		assert.Equal(t, expected, lst)
 
@@ -42,23 +44,40 @@ func TestLevelFuncs(t *testing.T) {
 	}
 }
 
-func TestTest(t *testing.T) {
-	base := newBaseLogger().SetLogLevel(ALL)
-	base.D("TEST BASE")
+type callInfo struct {
+	packageName string
+	fileName    string
+	funcName    string
+	line        int
+}
 
-	l := New().SetLogLevel(ALL)
-	l.D("TEST")
+func retrieveCallInfo() callInfo {
+	pc, file, line, _ := runtime.Caller(0)
+	_, fileName := path.Split(file)
+	tmp := runtime.FuncForPC(pc).Name()
+	parts := strings.Split(tmp, ".")
+	pl := len(parts)
+	packageName := ""
+	funcName := parts[pl-1]
 
-	l.WithTag("FirstTag").WithTag("SecondTag").D("TEST")
+	if parts[pl-2][0] == '(' {
+		funcName = parts[pl-2] + "." + funcName
+		packageName = strings.Join(parts[0:pl-2], ".")
+	} else {
+		packageName = strings.Join(parts[0:pl-1], ".")
+	}
 
-	ReplaceGoDefaultLogger(l, DEBUG)
-
-	log.Println("TEST DEFAULT")
+	return callInfo{
+		packageName: packageName,
+		fileName:    fileName,
+		funcName:    funcName,
+		line:        line,
+	}
 }
 
 func TestLevelFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetWriter(w)
+	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_NO_FILENAME)
 
 	funcs := map[LogLevel]func(tag string, msg string, args ...interface{}){
 		DEBUG:   l.Df,
@@ -74,7 +93,7 @@ func TestLevelFuncs_f(t *testing.T) {
 
 		f("MY_TAG", "%s - %s - %d", "some", "message", 123)
 
-		expected := string(DefaultFormatter("MY_TAG", level, "file.go", 123, "some - message - 123"))
+		expected := string(DefaultFormatter("MY_TAG", level, "", 0, "some - message - 123"))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()
