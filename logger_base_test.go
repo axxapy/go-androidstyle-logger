@@ -9,12 +9,12 @@ import (
 
 var (
 	w = new(InMemoryWriter)
-	l = New().SetWriter(w).(*defaultLogger)
+	l = newBaseLogger().SetWriter(w).(*baseLogger)
 )
 
 func TestLevelFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := New().SetWriter(w)
+	l := newBaseLogger().SetWriter(w)
 
 	funcs := map[LogLevel]func(tag string, msg ...interface{}){
 		DEBUG:   l.D,
@@ -30,7 +30,7 @@ func TestLevelFuncs(t *testing.T) {
 
 		f("MY_TAG", "some", "message", 123)
 
-		expected := string(DefaultFormatter(l, "MY_TAG", level, "some", "message", 123))
+		expected := string(DefaultFormatter("MY_TAG", level, "some", "message", 123))
 		lst := string(w.Last())
 		assert.Equal(t, expected, lst)
 
@@ -43,7 +43,7 @@ func TestLevelFuncs(t *testing.T) {
 
 func TestLevelFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := New().SetWriter(w)
+	l := newBaseLogger().SetWriter(w)
 
 	funcs := map[LogLevel]func(tag string, msg string, args ...interface{}){
 		DEBUG:   l.Df,
@@ -59,7 +59,7 @@ func TestLevelFuncs_f(t *testing.T) {
 
 		f("MY_TAG", "%s - %s - %d", "some", "message", 123)
 
-		expected := string(DefaultFormatter(l, "MY_TAG", level, "some - message - 123"))
+		expected := string(DefaultFormatter("MY_TAG", level, "some - message - 123"))
 		assert.Equal(t, expected, string(w.Last()))
 
 		w.Reset()
@@ -79,30 +79,30 @@ func TestDefaultLogger_SetFormatter(t *testing.T) {
 
 func TestDefaultLogger_SetLogLevel(t *testing.T) {
 	l.SetLogLevel(ALL)
-	assert.Equal(t, ALL, l.log_level)
+	assert.Equal(t, ALL, l.logLevel)
 
 	l.SetLogLevel(WARNING)
-	assert.Equal(t, WARNING, l.log_level)
+	assert.Equal(t, WARNING, l.logLevel)
 
 	l.SetLogLevel(0, "TAG")
-	assert.Equal(t, WARNING, l.log_level)
-	assert.Equal(t, LogLevel(0), l.log_level_tag["TAG"])
+	assert.Equal(t, WARNING, l.logLevel)
+	assert.Equal(t, LogLevel(0), l.logLevelPerTag["TAG"])
 }
 
 func TestDefaultLogger_ResetLogLevel(t *testing.T) {
 	l.SetLogLevel(ALL)
-	assert.Equal(t, ALL, l.log_level)
+	assert.Equal(t, ALL, l.logLevel)
 
 	l.SetLogLevel(INFO, "TAG")
-	assert.Equal(t, ALL, l.log_level)
-	assert.Equal(t, INFO, l.log_level_tag["TAG"])
+	assert.Equal(t, ALL, l.logLevel)
+	assert.Equal(t, INFO, l.logLevelPerTag["TAG"])
 
 	l.ResetLogLevel()
-	assert.Equal(t, LOG_LEVEL_DEFAULT, l.log_level)
-	assert.Equal(t, INFO, l.log_level_tag["TAG"])
+	assert.Equal(t, LOG_LEVEL_DEFAULT, l.logLevel)
+	assert.Equal(t, INFO, l.logLevelPerTag["TAG"])
 
 	l.ResetLogLevel("TAG")
-	assert.Equal(t, LogLevel(0), l.log_level_tag["TAG"])
+	assert.Equal(t, LogLevel(0), l.logLevelPerTag["TAG"])
 }
 
 func TestDefaultLogger_IsLoggable(t *testing.T) {
@@ -123,11 +123,11 @@ func TestDefaultLogger_IsLoggable(t *testing.T) {
 
 func TestDefaultLogger_WithTag(t *testing.T) {
 	ll := l.WithTag("XXX")
-	assert.Equal(t, "XXX", ll.(*simpleLogger).tag)
+	assert.Equal(t, "XXX", ll.(*taggedLogger).tag)
 }
 
 func TestDefaultLogger_Check(t *testing.T) {
-	l := New().SetLogLevel(ALL)
+	l := newBaseLogger().SetLogLevel(ALL)
 	assert.NotNil(t, l.Check(INFO))
 
 	l.SetLogLevel(ALL ^ INFO)
@@ -135,10 +135,10 @@ func TestDefaultLogger_Check(t *testing.T) {
 }
 
 func TestDefaultLogger_CheckWithTag(t *testing.T) {
-	l := New().SetLogLevel(ALL)
+	l := newBaseLogger().SetLogLevel(ALL)
 	assert.NotNil(t, l.CheckWithTag(INFO, "MY_TAG"))
 
-	l.SetLogLevel(ALL ^ INFO, "MY_TAG")
+	l.SetLogLevel(ALL^INFO, "MY_TAG")
 	assert.Nil(t, l.CheckWithTag(INFO, "MY_TAG"))
 	assert.NotNil(t, l.CheckWithTag(WARNING, "MY_TAG"))
 	assert.NotNil(t, l.CheckWithTag(INFO, "OTHER_TAG"))

@@ -23,7 +23,6 @@ const (
 )
 
 var (
-	//logger    = log.New()
 	logger     = New()
 	levelNames = map[LogLevel]string{
 		DEBUG:   "D",
@@ -34,6 +33,16 @@ var (
 		WTF:     "WTF",
 	}
 )
+
+func New() Logger {
+	return &taggedLogger{
+		baseLogger: newBaseLogger(),
+	}
+}
+
+func Default() Logger {
+	return logger
+}
 
 func GetLevelName(level LogLevel) string {
 	if name, exists := levelNames[level]; exists {
@@ -58,7 +67,7 @@ func SetWriter(w io.Writer) {
 	logger.SetWriter(w)
 }
 
-func WithTag(tag string) SimpleLogger {
+func WithTag(tag string) Logger {
 	return logger.WithTag(tag)
 }
 
@@ -69,7 +78,7 @@ func Check(level LogLevel) Logger {
 	return nil
 }
 
-func CheckWithTag(level LogLevel, tag string) SimpleLogger {
+func CheckWithTag(level LogLevel, tag string) Logger {
 	if logger.IsLoggable(level, tag) {
 		return logger.WithTag(tag)
 	}
@@ -77,45 +86,45 @@ func CheckWithTag(level LogLevel, tag string) SimpleLogger {
 }
 
 func D(tag string, msg ...interface{}) {
-	logger.D(tag, msg...)
+	logger.WithTag(tag).D(msg...)
 }
 
 func Df(tag string, msg string, args ...interface{}) {
-	logger.Df(tag, msg, args...)
+	logger.WithTag(tag).Df(msg, args...)
 }
 
 func V(tag string, msg ...interface{}) {
-	logger.V(tag, msg...)
+	logger.WithTag(tag).V(msg...)
 }
 
 func Vf(tag string, msg string, args ...interface{}) {
-	logger.Vf(tag, msg, args...)
+	logger.WithTag(tag).Vf(msg, args...)
 }
 
 func E(tag string, msg ...interface{}) {
-	logger.E(tag, msg...)
+	logger.WithTag(tag).E(msg...)
 }
 
 func Ef(tag string, msg string, args ...interface{}) {
-	logger.Ef(tag, msg, args...)
+	logger.WithTag(tag).Ef(msg, args...)
 }
 
 func W(tag string, msg ...interface{}) {
-	logger.W(tag, msg...)
+	logger.WithTag(tag).W(msg...)
 }
 
 func Wf(tag string, msg string, args ...interface{}) {
-	logger.Wf(tag, msg, args...)
+	logger.WithTag(tag).Wf(msg, args...)
 }
 
 func I(tag string, msg ...interface{}) {
-	logger.I(tag, msg...)
+	logger.WithTag(tag).I(msg...)
 }
 
 func If(tag string, msg string, args ...interface{}) {
-	logger.If(tag, msg, args...)
+	logger.WithTag(tag).If(msg, args...)
 }
 
 func Fatal(tag string, err error) {
-	logger.Fatal(tag, err)
+	logger.WithTag(tag).Fatal(err)
 }
