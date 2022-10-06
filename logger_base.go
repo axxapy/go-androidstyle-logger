@@ -64,6 +64,7 @@ func (l *baseLogger) format(tag string, level LogLevel, file string, line int, m
 	return l.formatter(tag, level, file, line, msg...)
 }
 
+// https://stackoverflow.com/questions/25262754/how-to-get-name-of-current-package-in-go
 func (l *baseLogger) caller() (string, int) {
 	if l.flags&FLAG_NO_FILENAME != 0 {
 		return "", 0
@@ -88,7 +89,9 @@ func (l *baseLogger) caller() (string, int) {
 		parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
 		pl := len(parts)
 		packageName := ""
+		//funcName := parts[pl-1]
 		if parts[pl-2][0] == '(' {
+			// funcName = parts[pl-2] + "." + funcName
 			packageName = strings.Join(parts[0:pl-2], ".")
 		} else {
 			packageName = strings.Join(parts[0:pl-1], ".")

@@ -79,6 +79,9 @@ func SetWriter(w io.Writer) {
 }
 
 func WithTag(tag string) Logger {
+	if l, ok := logger.(*taggedLogger); ok {
+		l.baseLogger.callerDeep++
+	}
 	return logger.WithTag(tag)
 }
 
