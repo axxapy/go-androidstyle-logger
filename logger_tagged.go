@@ -100,7 +100,7 @@ func (l *taggedLogger) GetTag() string {
 
 func (l *taggedLogger) WithTag(tag string) Logger {
 	if l.tag != "" {
-		tag = l.tag + ">" + tag
+		tag = l.tag + tagDelimiter + tag
 	}
 	return &taggedLogger{
 		baseLogger: l.baseLogger,

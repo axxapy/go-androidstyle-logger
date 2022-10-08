@@ -20,6 +20,8 @@ const (
 	ALL = DEBUG ^ ERROR ^ INFO ^ VERBOSE ^ WARNING ^ WTF
 
 	LOG_LEVEL_DEFAULT = WARNING ^ ERROR ^ INFO
+
+	tagDelimiter = "|"
 )
 
 var (
@@ -79,9 +81,6 @@ func SetWriter(w io.Writer) {
 }
 
 func WithTag(tag string) Logger {
-	if l, ok := logger.(*taggedLogger); ok {
-		l.baseLogger.callerDeep++
-	}
 	return logger.WithTag(tag)
 }
 
