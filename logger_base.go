@@ -21,7 +21,7 @@ type baseLoggerInterface interface {
 	I(tag string, msg ...interface{})
 	If(tag string, msg string, args ...interface{})
 
-	Fatal(tag string, err error)
+	Fatal(tag string, err error, msgs ...any)
 
 	SetLogLevel(level LogLevel, tags ...string) baseLoggerInterface
 	ResetLogLevel(tags ...string) baseLoggerInterface
@@ -167,9 +167,9 @@ func (l *baseLogger) If(tag string, msg string, args ...interface{}) {
 	}
 }
 
-func (l *baseLogger) Fatal(tag string, err error) {
+func (l *baseLogger) Fatal(tag string, err error, msgs ...any) {
 	if err != nil {
-		E(tag, err)
+		E(tag, append([]any{err}, msgs...))
 		os.Exit(1)
 	}
 }

@@ -17,7 +17,7 @@ type Logger interface {
 	GetTag() string
 	SetTag(tag string)
 
-	Fatal(err error)
+	Fatal(err error, msgs ...any)
 
 	SetLogLevel(level LogLevel, tags ...string) Logger
 	ResetLogLevel(tags ...string) Logger
@@ -79,8 +79,8 @@ func (l *taggedLogger) If(msg string, args ...interface{}) {
 	l.baseLogger.If(l.tag, msg, args...)
 }
 
-func (l *taggedLogger) Fatal(err error) {
-	l.baseLogger.Fatal(l.tag, err)
+func (l *taggedLogger) Fatal(err error, msgs ...any) {
+	l.baseLogger.Fatal(l.tag, err, msgs...)
 }
 
 func (l *taggedLogger) Check(level LogLevel) Logger {
