@@ -39,17 +39,16 @@ var (
 type Flag uint8
 
 const (
-	FLAG_FILE_FULL_PATH Flag = 1 << iota
-	FLAG_FILE_ONLY_NAME
-	FLAG_FILE_WITH_PACKAGE
-	FLAG_NO_FILENAME
+	FLAG_FILENAME_FULLPATH Flag = 1 << iota
+	FLAG_FILENAME_ONLY_NAME
+	FLAG_FILENAME_WITH_PACKAGE
+	FLAG_FILENAME_DISABLED
 )
 
 func New() Logger {
 	logger := &taggedLogger{
 		baseLogger: newBaseLogger(),
 	}
-	logger.baseLogger.callerDeep++
 	return logger
 }
 

@@ -55,8 +55,8 @@ func newBaseLogger() *baseLogger {
 		logLevelPerTag: make(map[string]LogLevel),
 		formatter:      DefaultFormatter,
 		writer:         os.Stderr,
-		callerDeep:     3,
-		flags:          FLAG_FILE_ONLY_NAME,
+		callerDeep:     1,
+		flags:          FLAG_FILENAME_ONLY_NAME,
 	}
 }
 
@@ -66,7 +66,7 @@ func (l *baseLogger) format(tag string, level LogLevel, file string, line int, m
 
 // https://stackoverflow.com/questions/25262754/how-to-get-name-of-current-package-in-go
 func (l *baseLogger) caller() (string, int) {
-	if l.flags&FLAG_NO_FILENAME != 0 {
+	if l.flags&FLAG_FILENAME_DISABLED != 0 {
 		return "", 0
 	}
 
@@ -75,17 +75,17 @@ func (l *baseLogger) caller() (string, int) {
 		return "", 0
 	}
 
-	if l.flags&FLAG_FILE_FULL_PATH != 0 {
+	if l.flags&FLAG_FILENAME_FULLPATH != 0 {
 		return file, line
 	}
 
 	file = filepath.Base(file)
 
-	if l.flags&FLAG_FILE_ONLY_NAME != 0 {
+	if l.flags&FLAG_FILENAME_ONLY_NAME != 0 {
 		return file, line
 	}
 
-	if l.flags&FLAG_FILE_WITH_PACKAGE != 0 {
+	if l.flags&FLAG_FILENAME_WITH_PACKAGE != 0 {
 		parts := strings.Split(runtime.FuncForPC(pc).Name(), ".")
 		pl := len(parts)
 		packageName := ""

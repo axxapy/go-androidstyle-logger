@@ -76,7 +76,7 @@ func TestStatic_testLogFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
-		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 		w.Reset()
 
 		expected := DefaultFormatter("TAG", level, "", 0, "some", "message", 123)
@@ -107,7 +107,7 @@ func TestStatic_testLogFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
 
 	for level, f := range funcs {
-		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+		logger = New().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 		w.Reset()
 
 		expected := DefaultFormatter("TAG", level, "", 0, "some - message - 123")

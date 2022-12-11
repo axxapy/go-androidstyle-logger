@@ -8,7 +8,7 @@ import (
 
 func TestSimpleLevelFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 	lSimple := l.WithTag("MY_TAG")
 
 	funcs := map[LogLevel]func(msg ...interface{}){
@@ -36,7 +36,7 @@ func TestSimpleLevelFuncs(t *testing.T) {
 
 func TestSimpleLevelFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+	l := newBaseLogger().SetLogLevel(ALL).SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 	lSimple := l.WithTag("MY_TAG")
 
 	funcs := map[LogLevel]func(msg string, args ...interface{}){

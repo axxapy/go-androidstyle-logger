@@ -17,7 +17,7 @@ var (
 
 func TestLevelFuncs(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 
 	funcs := map[LogLevel]func(tag string, msg ...interface{}){
 		DEBUG:   l.D,
@@ -77,7 +77,7 @@ func retrieveCallInfo() callInfo {
 
 func TestLevelFuncs_f(t *testing.T) {
 	w := new(InMemoryWriter)
-	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_NO_FILENAME)
+	l := newBaseLogger().SetWriter(w).SetFlags(FLAG_FILENAME_DISABLED)
 
 	funcs := map[LogLevel]func(tag string, msg string, args ...interface{}){
 		DEBUG:   l.Df,
